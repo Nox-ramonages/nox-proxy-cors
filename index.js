@@ -26,7 +26,7 @@ app.options('*', (req, res) => {
 // PROXY PRINCIPAL
 app.all('/', async (req, res) => {
   // URL de votre Google Apps Script (à vérifier/mettre à jour)
-  const targetUrl = 'https://script.google.com/macros/s/AKfycbztQUBQWDbdcd3GlQwDXYrOZJ2YIcZ8cJHLDzViGWqxaDnmaEZrMXzpswRREzIb9S0U/exec';
+  const targetUrl = 'https://script.google.com/macros/s/AKfycbzkCiu3jHWOemdCqiiNnClXSbagsSSbTG1i81DanxByLI0VAx3_iCCPAzPhq4Vy2aaC/exec';
 
   try {
     let fetchOptions = {
