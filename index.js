@@ -6,34 +6,47 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Important: Réponse aux requêtes OPTIONS (préflight)
+// OPTIONS pour le preflight CORS
 app.options('*', cors(), (req, res) => {
   res.sendStatus(200);
 });
 
-// Proxy principal (GET et POST)
+// PROXY PRINCIPAL
 app.all('/', async (req, res) => {
   const targetUrl = 'https://script.google.com/macros/s/AKfycbxfTscFJS9FQ1GW3p4oJfZQAs_HkWVh5YjjXm1YKsWEAZmjVM2HsheoqUOVT2F2x7CQ/exec';
-  let params = req.method === 'GET' ? req.query : req.body;
-  let method = req.method;
-  let options = {};
-
-  if (method === 'POST') {
-    options = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params)
-    };
-  }
 
   try {
-    const url = method === 'GET'
-      ? `${targetUrl}?${new URLSearchParams(params).toString()}`
-      : targetUrl;
-    const fetchRes = await fetch(url, options);
-    const data = await fetchRes.text();
-    res.setHeader('Content-Type', 'application/json');
-    res.status(fetchRes.status).send(data);
+    // Pour GET, on forward tout simplement
+    if (req.method === 'GET') {
+      const url = `${targetUrl}?${new URLSearchParams(req.query).toString()}`;
+      const fetchRes = await fetch(url);
+      const data = await fetchRes.text();
+      res.setHeader('Content-Type', 'application/json');
+      res.status(fetchRes.status).send(data);
+      return;
+    }
+
+    // Pour POST, Apps Script attend x-www-form-urlencoded, pas JSON !
+    if (req.method === 'POST') {
+      const params = req.body;
+      const form = new URLSearchParams();
+      for (const [key, value] of Object.entries(params)) {
+        form.append(key, value);
+      }
+      const fetchRes = await fetch(targetUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: form.toString(),
+      });
+      const data = await fetchRes.text();
+      res.setHeader('Content-Type', 'application/json');
+      res.status(fetchRes.status).send(data);
+      return;
+    }
+
+    res.status(405).send('Method Not Allowed');
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
