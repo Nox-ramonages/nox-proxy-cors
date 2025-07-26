@@ -13,7 +13,7 @@ app.options('*', cors(), (req, res) => {
 
 // PROXY PRINCIPAL
 app.all('/', async (req, res) => {
-  const targetUrl = 'https://script.google.com/macros/s/AKfycbxfTscFJS9FQ1GW3p4oJfZQAs_HkWVh5YjjXm1YKsWEAZmjVM2HsheoqUOVT2F2x7CQ/exec';
+  const targetUrl = 'https://script.google.com/macros/s/AKfycbx8KX7O5I4UbcTaBfuBkMZwPKH9lp8uICkwxy2bjBqtbyDKBC6bXef_j7Fygd6eInTw/exec';
 
   try {
     // Pour GET, on forward tout simplement
